@@ -10,7 +10,6 @@
 // project header files
 #include "power_manager.hpp"
 
-
 void PowerManager::setup() {
 #define I2C_0 static_cast<const axp192_t *>(i2c_hal(0))
   axp192_init(I2C_0);

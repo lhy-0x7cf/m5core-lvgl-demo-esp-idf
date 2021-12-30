@@ -20,4 +20,4 @@ class PowerManager {
 
 };
 
-#endif
+#endif // M5CORE2_LVGL_DEMO_ESP_IDF_POWER_MANAGER_HPP_
