@@ -3,6 +3,7 @@
 // other libraries
 #include <axp192.h>
 #include <driver/gpio.h>
+#include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <i2c_manager.h>
 #include <sdkconfig.h>
