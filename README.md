@@ -1,32 +1,21 @@
-# _Sample project_
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+# M5Core2 LVGL Demo ESP-IDF
 
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
+## Description
+This project is a demo to use [LVGL](https://github.com/lvgl/lvgl) with [esp-idf](https://github.com/espressif/esp-idf) to write an app with GUI on [M5Stack Core2](https://docs.m5stack.com/en/core/core2) device.
 
+## Build and Load
+1. After cloning the repo, init and update the submodules
+    ```bash
+    git submodule init
+    git submodule update
+    ```
+2. Launch esp-idf terminal and run the following commands
+    ```bash
+    idf.py build flash
+    ```
 
+## Note
+Directly copy the `sdkconfig` file from https://github.com/imliubo/lvgl_port_M5Core2. Without this config file, I am not able to build the project correctly to make it run without issue. It will be nice to note down how to config the project with `idf.py menuconfig`.
 
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
-
-## Example folder contents
-
-The project **sample_project** contains one source file in C language [main.c](main/main.c). The file is located in folder [main](main).
-
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
-
-Below is short explanation of remaining files in the project folder.
-
-```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
-```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
+For [LVGL](https://github.com/lvgl/lvgl), DO NOT USE any release branch and just use the master branch. Never make it work even with the config file mentioned above.
