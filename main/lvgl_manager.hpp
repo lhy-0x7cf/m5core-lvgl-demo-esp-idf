@@ -5,8 +5,6 @@ class LvglManager {
  public:
   void init();
 
-  void draw();
-
   // enable singleton
   static LvglManager& instance() {
     static LvglManager me;

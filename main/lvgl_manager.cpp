@@ -3,6 +3,10 @@
 // other libraries
 #include <lvgl.h>
 #include <lvgl_helpers.h>
+#include <esp_timer.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
+#include <freertos/task.h>
 
 // project header files
 #include "lvgl_manager.hpp"
@@ -13,6 +17,59 @@ static lv_disp_drv_t disp_drv;
 static lv_indev_drv_t indev_drv;
 static lv_disp_buf_t disp_buf;
 static lv_color16_t color_buf[2][DISP_BUF_SIZE];
+SemaphoreHandle_t xGuiSemaphore;
+
+// constants
+static const uint32_t kLvTickPeriodMs = 1;
+
+static void lv_tick_task(void *args) {
+  (void) args;
+  lv_tick_inc(kLvTickPeriodMs);
+}
+
+void guiTask(void *pvParameter) {
+  (void) pvParameter;
+  xGuiSemaphore = xSemaphoreCreateMutex();
+
+  // create and start a timer for lv_tick_inc
+  const esp_timer_create_args_t periodic_timer_args = {
+    .callback = &lv_tick_task,
+    .name = "periodic_gui"
+  };
+  esp_timer_handle_t periodic_timer;
+  ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+  ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, kLvTickPeriodMs * 1000));
+
+  // gui code
+  lv_obj_t *tab_view;
+  tab_view = lv_tabview_create(lv_scr_act(), NULL);
+
+  lv_obj_t *tab1 = lv_tabview_add_tab(tab_view, "Tab 1");
+  lv_obj_t *tab2 = lv_tabview_add_tab(tab_view, "Tab 2");
+  lv_obj_t *tab3 = lv_tabview_add_tab(tab_view, "Tab 3");
+
+  lv_obj_t *label = lv_label_create(tab1, NULL);
+  lv_label_set_text(label, "abc");
+
+  label = lv_label_create(tab2, NULL);
+  lv_label_set_text(label, "def");
+
+  label = lv_label_create(tab3, NULL);
+  lv_label_set_text(label, "ghi");
+
+  
+  // forever loop
+  while (1) {
+    /* Delay 1 tick (assumes FreeRTOS tick is 10ms */
+    vTaskDelay(pdMS_TO_TICKS(10));
+
+    /* Try to take the semaphore, call lvgl related function on success */
+    if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
+      lv_task_handler();
+      xSemaphoreGive(xGuiSemaphore);
+    }
+  }
+}
 
 void LvglManager::init() {
   // init lvgl and its driver
@@ -39,4 +96,6 @@ void LvglManager::init() {
 #else
 #error "Touch Controller Not Found"
 #endif
+
+  xTaskCreatePinnedToCore(guiTask, "gui", 4096 * 2, NULL, 0, NULL, 0);
 }
