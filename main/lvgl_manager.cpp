@@ -15,7 +15,7 @@
 // global variables
 static lv_disp_drv_t disp_drv;
 static lv_indev_drv_t indev_drv;
-static lv_disp_buf_t disp_buf;
+static lv_disp_draw_buf_t draw_buf;
 static lv_color16_t color_buf[2][DISP_BUF_SIZE];
 SemaphoreHandle_t xGuiSemaphore;
 
@@ -41,21 +41,24 @@ void guiTask(void *pvParameter) {
   ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, kLvTickPeriodMs * 1000));
 
   // gui code
+  /*Create a Tab view object*/
   lv_obj_t *tab_view;
-  tab_view = lv_tabview_create(lv_scr_act(), NULL);
+  tab_view = lv_tabview_create(lv_scr_act(), LV_DIR_TOP, 50);
 
+  /*Add 3 tabs (the tabs are page (lv_page) and can be scrolled*/
   lv_obj_t *tab1 = lv_tabview_add_tab(tab_view, "Tab 1");
   lv_obj_t *tab2 = lv_tabview_add_tab(tab_view, "Tab 2");
   lv_obj_t *tab3 = lv_tabview_add_tab(tab_view, "Tab 3");
 
-  lv_obj_t *label = lv_label_create(tab1, NULL);
-  lv_label_set_text(label, "abc");
+  /*Add content to the tabs*/
+  lv_obj_t *label = lv_label_create(tab1);
+  lv_label_set_text(label, "Tab 1");
 
-  label = lv_label_create(tab2, NULL);
-  lv_label_set_text(label, "def");
+  label = lv_label_create(tab2);
+  lv_label_set_text(label, "Tab 2");
 
-  label = lv_label_create(tab3, NULL);
-  lv_label_set_text(label, "ghi");
+  label = lv_label_create(tab3);
+  lv_label_set_text(label, "Tab 3");
 
   
   // forever loop
@@ -77,14 +80,14 @@ void LvglManager::init() {
   lvgl_driver_init();
 
   // init display
-  lv_disp_buf_init(&disp_buf, &color_buf[0], &color_buf[1], DISP_BUF_SIZE);
+  lv_disp_draw_buf_init(&draw_buf, &color_buf[0], &color_buf[1], DISP_BUF_SIZE);
 
   // init display driver
   lv_disp_drv_init(&disp_drv);
   disp_drv.hor_res = LV_HOR_RES_MAX;
   disp_drv.ver_res = LV_VER_RES_MAX;
   disp_drv.flush_cb = disp_driver_flush;
-  disp_drv.buffer = &disp_buf;
+  disp_drv.draw_buf = &draw_buf;
   lv_disp_drv_register(&disp_drv);
 
   // init input device
